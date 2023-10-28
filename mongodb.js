@@ -84,10 +84,24 @@ async function updateDocs(){
     await client.close()
 }
 
+async function deleteDocs(){
+    client.connect()
+    const db = client.db('task-manager')
+    const tasks = db.collection('tasks')
+
+    var result = await tasks.deleteOne({ description: 'Solve 3 LeetCode Problems' })
+
+    await client.close()
+}
+
 //insertDocs().catch( error => {console.log('Insertion failed', error)})
 
 //findDocs().catch( error => {console.log('Fetching failed', error)})
 
-// updateDocs().catch( error => {console.log('Fetching failed', error)})
+// updateDocs().catch( error => {console.log('Updating failed', error)})
+
+deleteDocs().catch( error => {console.log('Deleting failed', error)})
+
+
 
 
