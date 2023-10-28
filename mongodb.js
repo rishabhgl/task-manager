@@ -57,8 +57,37 @@ async function findDocs(){
     await client.close()
 }
 
+
+async function updateDocs(){
+    await client.connect()
+    await client.db("admin").command({ ping: 1 })
+    console.log('Connection established and tested')  
+
+    const db = client.db('task-manager')
+    const users = db.collection('users')
+    const tasks = db.collection('tasks')
+    
+    var result = await users.updateOne({ name: 'Pranjay'}, {
+        $set: {
+            name: 'Kriti',
+            age: 20
+        }
+    })
+
+    var result = await tasks.updateMany({completed: false}, {
+        $set: {
+            completed: true
+        }
+    })
+
+    console.log(result)
+    await client.close()
+}
+
 //insertDocs().catch( error => {console.log('Insertion failed', error)})
 
-findDocs().catch( error => {console.log('Fetching failed', error)})
+//findDocs().catch( error => {console.log('Fetching failed', error)})
+
+// updateDocs().catch( error => {console.log('Fetching failed', error)})
 
 
