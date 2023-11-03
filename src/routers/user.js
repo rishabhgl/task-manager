@@ -27,6 +27,29 @@ router.post('/users/login', async (req, res) => {
     }
 })
 
+router.post('/users/logout', auth, async(req, res, next) => {
+    try{
+        req.user.tokens = req.user.tokens.filter( token => token.token !== req.token )
+        await req.user.save()
+
+        res.send(req.user)
+    } catch (e){
+        res.status(500).send({ error: 'Unable to log out!'})
+    }
+})
+
+router.post('/users/logoutAll', auth, async(req, res, next) => {
+    try{
+        req.user.tokens = []
+        await req.user.save()
+
+        res.send(req.user)
+    } catch (e){
+        res.status(500).send({ error: 'Unable to log out!'})
+    }
+})
+
+
 router.get('/users/me', auth, async (req, res) => {
     res.send(req.user)
     
