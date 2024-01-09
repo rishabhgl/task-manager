@@ -1,58 +1,72 @@
 const express = require('express')
 const User = require('../models/user')
 const auth = require('../middleware/auth')
+const multer = require('multer')
 
 const router = new express.Router()
+const upload = multer({
+    dest: 'avatar',
+    limits: {
+        fileSize: 1000000
+    },
+    fileFilter(req, fileFilter, cb) {
+        if (!fileFilter.originalname.match(/\.(jpeg|jpg|png)$/)) {
+            cb(new Error('Please upload an image file!'))
+        }
+
+        cb(undefined, true)
+    }
+})
 
 router.post('/users', async (req, res) => {
     var user = new User(req.body)
 
-    try{
+    try {
         const createdUser = await user.save()
         const token = await user.genAuthTokenAndSave()
-        res.status(201).send( {createdUser, token} )
-    } catch (e){
+        res.status(201).send({ createdUser, token })
+    } catch (e) {
         res.status(400).send(e)
     }
 
 })
 
 router.post('/users/login', async (req, res) => {
-    try{
+    try {
         const user = await User.findByCredentials(req.body.email, req.body.password)
         const token = await user.genAuthTokenAndSave()
-        res.send({user, token})
-    } catch(e){
+        res.send({ user, token })
+    } catch (e) {
         res.status(400).send(e)
     }
 })
 
-router.post('/users/logout', auth, async(req, res) => {
-    try{
-        req.user.tokens = req.user.tokens.filter( token => token.token !== req.token )
+router.post('/users/logout', auth, async (req, res) => {
+    try {
+        req.user.tokens = req.user.tokens.filter(token => token.token !== req.token)
         await req.user.save()
 
         res.send(req.user)
-    } catch (e){
-        res.status(500).send({ error: 'Unable to log out!'})
+    } catch (e) {
+        res.status(500).send({ error: 'Unable to log out!' })
     }
 })
 
-router.post('/users/logoutAll', auth, async(req, res) => {
-    try{
+router.post('/users/logoutAll', auth, async (req, res) => {
+    try {
         req.user.tokens = []
         await req.user.save()
 
         res.send(req.user)
-    } catch (e){
-        res.status(500).send({ error: 'Unable to log out!'})
+    } catch (e) {
+        res.status(500).send({ error: 'Unable to log out!' })
     }
 })
 
 
 router.get('/users/me', auth, async (req, res) => {
     res.send(req.user)
-    
+
 })
 
 router.patch('/users/me', auth, async (req, res) => {
@@ -61,15 +75,15 @@ router.patch('/users/me', auth, async (req, res) => {
     const allowedUpdates = ['name', 'age', 'email', 'password']
     const isValidUpdate = updates.every(update => allowedUpdates.includes(update))
 
-    if (!isValidUpdate) return res.status(400).send({ error: 'Invalid update!'})
+    if (!isValidUpdate) return res.status(400).send({ error: 'Invalid update!' })
 
-    try{
+    try {
 
-        updates.forEach( update => req.user[update] = req.body[update])
+        updates.forEach(update => req.user[update] = req.body[update])
         req.user = await req.user.save()
 
         res.send(req.user)
-    } catch(e){
+    } catch (e) {
         res.status(400).send(e)
         console.log(e)
     }
@@ -77,13 +91,21 @@ router.patch('/users/me', auth, async (req, res) => {
 })
 
 router.delete('/users/me', auth, async (req, res) => {
-    try{
+    try {
         await req.user.deleteOne()
         res.send(req.user)
-    } catch(e){
+    } catch (e) {
         console.log(e)
         res.status(500).send()
     }
+})
+
+router.post('/users/me/avatar', upload.single('avatar'), (req, res) => {
+    res.send()
+}, (err, req, res, next) => {
+    res.status(400).send({
+        error: err.message
+    })
 })
 
 module.exports = router
