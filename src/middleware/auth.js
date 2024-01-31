@@ -5,7 +5,7 @@ const auth = async (req, res, next) => {
     try {
         console.log("Authenticating...")
         const token = req.header('Authorization').replace('Bearer ', '')
-        const tokenData = jsonwebtoken.verify(token, 'hellofriends')
+        const tokenData = jsonwebtoken.verify(token, process.env.JWT_PHRASE)
         const user = await User.findOne({ _id: tokenData._id, 'tokens.token': token })
         if (!user) {
             throw new Error()
