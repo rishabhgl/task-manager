@@ -79,6 +79,7 @@ router.patch('/tasks/:id', auth, async (req, res) => {
         if (!task) return res.status(404).send({ error: 'Could not find task!' })
 
         updates.forEach(update => task[update] = req.body[update])
+        await task.save()
         res.send(task)
     } catch (e) {
         res.status(400).send()
