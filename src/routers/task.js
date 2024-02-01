@@ -14,7 +14,9 @@ router.post('/tasks', auth, async (req, res) => {
         const createdTask = await task.save()
         res.status(201).send(createdTask)
     } catch (e) {
-        res.status(400).send(e)
+        res.status(400).send({
+            error: e.message
+        })
     }
 
 })
@@ -46,8 +48,9 @@ router.get('/tasks', auth, async (req, res) => {
         })
         res.send(user.tasks)
     } catch (e) {
-        console.log(e)
-        res.status(500).send()
+        res.status(500).send({
+            error: e.message
+        })
     }
 
 })
@@ -60,7 +63,9 @@ router.get('/tasks/:id', auth, async (req, res) => {
         if (!task) res.status(404).send()
         res.send(task)
     } catch (e) {
-        res.status(500).send()
+        res.status(500).send({
+            error: e.message
+        })
     }
 
 })
@@ -79,10 +84,12 @@ router.patch('/tasks/:id', auth, async (req, res) => {
         if (!task) return res.status(404).send({ error: 'Could not find task!' })
 
         updates.forEach(update => task[update] = req.body[update])
-        await task.save()
+        task = await task.save()
         res.send(task)
     } catch (e) {
-        res.status(400).send()
+        res.status(400).send({
+            error: e.message
+        })
     }
 
 })
@@ -93,7 +100,9 @@ router.delete('/tasks/:id', auth, async (req, res) => {
         const task = await Task.findOneAndDelete({ _id: req.params.id, owner: req.user._id })
         res.send(task)
     } catch (e) {
-        res.status(500).send()
+        res.status(500).send({
+            error: e.message
+        })
     }
 })
 

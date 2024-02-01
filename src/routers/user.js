@@ -26,7 +26,9 @@ router.post('/users', async (req, res) => {
         const token = await user.genAuthTokenAndSave()
         res.status(201).send({ createdUser, token })
     } catch (e) {
-        res.status(400).send(e)
+        res.status(400).send({
+            error: e.message
+        })
     }
 
 })
@@ -37,7 +39,9 @@ router.post('/users/login', async (req, res) => {
         const token = await user.genAuthTokenAndSave()
         res.send({ user, token })
     } catch (e) {
-        res.status(400).send(e)
+        res.status(400).send({
+            error: e.message
+        })
     }
 })
 
@@ -84,8 +88,9 @@ router.patch('/users/me', auth, async (req, res) => {
 
         res.send(req.user)
     } catch (e) {
-        res.status(400).send(e)
-        console.log(e)
+        res.status(400).send({
+            error: e.message
+        })
     }
 
 })
@@ -95,8 +100,9 @@ router.delete('/users/me', auth, async (req, res) => {
         await req.user.deleteOne()
         res.send(req.user)
     } catch (e) {
-        console.log(e)
-        res.status(500).send()
+        res.status(500).send({
+            error: e.message
+        })
     }
 })
 
@@ -119,8 +125,9 @@ router.delete('/users/me/avatar', auth, async (req, res) => {
             res.status(200).send()
         }
     } catch (e) {
-        console.log(e)
-        res.status(500).send()
+        res.status(500).send({
+            error: e.message
+        })
     }
 })
 
@@ -134,8 +141,9 @@ router.get("/users/:id/avatar", async (req, res) => {
         res.send(user.avatar)
 
     } catch (e) {
-        console.log(e)
-        res.status(404).send()
+        res.status(404).send({
+            error: e.message
+        })
     }
 
 })
