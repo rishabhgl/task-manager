@@ -44,7 +44,11 @@ const userSchema = new mongoose.Schema({
         type: Buffer
     }
 }, {
-    timestamps: true
+    timestamps: true,
+    writeConcern: {
+        j: true,
+        wtimeout: 1000
+    }
 })
 
 userSchema.virtual('tasks', {
