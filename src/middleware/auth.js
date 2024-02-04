@@ -3,7 +3,6 @@ const User = require('../models/user')
 
 const auth = async (req, res, next) => {
     try {
-        console.log("Authenticating...")
         const token = req.header('Authorization').replace('Bearer ', '')
         const tokenData = jsonwebtoken.verify(token, process.env.JWT_PHRASE)
         const user = await User.findOne({ _id: tokenData._id, 'tokens.token': token })
@@ -12,10 +11,8 @@ const auth = async (req, res, next) => {
         }
         req.token = token
         req.user = user
-        console.log("Done authenticating!")
         next()
     } catch (e) {
-        console.log(e)
         res.status(401).send({ error: 'Please login!' })
     }
 }

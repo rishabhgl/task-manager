@@ -24,7 +24,7 @@ router.post('/users', async (req, res) => {
     try {
         const createdUser = await user.save()
         const token = await user.genAuthTokenAndSave()
-        res.status(201).send({ createdUser, token })
+        res.status(201).send({ user: createdUser, token })
     } catch (e) {
         res.status(400).send({
             error: e.message
@@ -97,13 +97,7 @@ router.patch('/users/me', auth, async (req, res) => {
 
 router.delete('/users/me', auth, async (req, res) => {
     try {
-        await req.user.deleteOne(undefined, {
-            writeConcern: {
-                w: 1,
-                j: true,
-                wtimeout: 1000
-            }
-        })
+        await req.user.deleteOne()
         res.send(req.user)
     } catch (e) {
         res.status(500).send({
